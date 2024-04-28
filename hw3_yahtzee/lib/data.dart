@@ -170,6 +170,11 @@ class YahtzeeGame {
     ai = !ai;
   }
 
+  bool haveYahtzee() {
+    List<int> counts = dice.getCounts();
+    return (counts.reduce(max) == 5);
+  }
+
   bool canAIMove() {
     return (ai && !isP1 && round < 14 && dice.remainTime > 0);
   }

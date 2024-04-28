@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hw3_yahtzee/anime.dart';
 import 'package:hw3_yahtzee/data.dart';
 import 'package:hw3_yahtzee/gamebar.dart';
 import 'package:hw3_yahtzee/playground.dart';
@@ -48,8 +49,12 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
           TextButton(
             onPressed: () {
-              setState(() => game.init());
+              setState(() {
+                game.init();
+                game.page = true;
+              });
               Navigator.pop(context, 'OK');
+              showYahtzee();
             },
             child: const Text('OK'),
           ),
@@ -73,8 +78,12 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
           TextButton(
             onPressed: () {
-              initGame();
+              setState(() {
+                game.init();
+                game.page = true;
+              });
               Navigator.pop(context, 'OK');
+              showYahtzee();
             },
             child: const Text('OK'),
           ),
@@ -114,6 +123,15 @@ class _MyHomePageState extends State<MyHomePage> {
     game.isAI = false;
   }
 
+  void showYahtzee() async {
+    Navigator.push(
+        context, MaterialPageRoute(builder: (context) => const YahtzeeAnime()));
+    await Future.delayed(const Duration(seconds: 3));
+    if (Navigator.canPop(context)) {
+      Navigator.pop(context);
+    }
+  }
+
   bool canRun() {
     if (game.isAI) {
       alertAIExecution();
@@ -131,6 +149,9 @@ class _MyHomePageState extends State<MyHomePage> {
   void updateTime() {
     if (canRun()) {
       setState(() => game.dice.roll());
+      if (game.haveYahtzee()) {
+        showYahtzee();
+      }
     }
   }
 
