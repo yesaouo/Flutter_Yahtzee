@@ -108,22 +108,33 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  void aiTurn() async {
+  Future<void> aiMove() async {
     game.isAI = true;
-    await Future.delayed(const Duration(seconds: 1));
-    setState(() => game.dice.roll());
+    if (game.dice.remainTime == 3) {
+      await Future.delayed(const Duration(seconds: 1));
+      setState(() => game.dice.roll());
+    }
+    if (game.dice.suggestRoll()) {
+      await Future.delayed(const Duration(seconds: 1));
+      setState(() => game.dice.aiLock());
+      await Future.delayed(const Duration(seconds: 1));
+      setState(() => game.dice.roll());
+    }
+    if (game.dice.suggestRoll()) {
+      await Future.delayed(const Duration(seconds: 1));
+      setState(() => game.dice.aiLock());
+      await Future.delayed(const Duration(seconds: 1));
+      setState(() => game.dice.roll());
+    }
     await Future.delayed(const Duration(seconds: 2));
-    setState(() {
-      if (game.setScore(game.suggestChoice())) {
-        if (!game.nextTurn()) {
-          alertGameEnd();
-        }
-      }
-    });
+    setState(() => game.setScore(game.suggestChoice()));
     game.isAI = false;
+    if (!game.nextTurn()) {
+      alertGameEnd();
+    }
   }
 
-  void showYahtzee() async {
+  Future<void> showYahtzee() async {
     Navigator.push(
         context, MaterialPageRoute(builder: (context) => const YahtzeeAnime()));
     await Future.delayed(const Duration(seconds: 3));
@@ -158,14 +169,13 @@ class _MyHomePageState extends State<MyHomePage> {
   void updateScore(int key) {
     if (canRun()) {
       setState(() {
-        if (game.setScore(key)) {
-          if (game.nextTurn()) {
-            if (!game.isP1 && game.ai) {
-              aiTurn();
-            }
-          } else {
-            alertGameEnd();
+        game.setScore(key);
+        if (game.nextTurn()) {
+          if (game.canAIMove()) {
+            aiMove();
           }
+        } else {
+          alertGameEnd();
         }
       });
     }
@@ -183,7 +193,7 @@ class _MyHomePageState extends State<MyHomePage> {
     if (canRun()) {
       setState(() => game.toggleAI());
       if (game.canAIMove()) {
-        aiTurn();
+        aiMove();
       }
     }
   }
@@ -195,7 +205,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   final AudioPlayer _audioPlayer = AudioPlayer();
-  void setAudioPlayer() async {
+  Future<void> setAudioPlayer() async {
     if (game.volume) {
       _audioPlayer.pause();
       setState(() => game.volume = false);

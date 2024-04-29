@@ -79,6 +79,24 @@ class Dice {
     }
   }
 
+  void aiLock() {
+    List<int> counts = getCounts();
+    int maxCount = counts.reduce(max);
+    int mostFrequent = counts.lastIndexOf(maxCount);
+    if (remainTime > 0 && mostFrequent != 0 && maxCount > 1) {
+      for (int i = 0; i < 5; i++) {
+        lock[i] = (dice[i] == mostFrequent);
+      }
+    }
+  }
+
+  bool suggestRoll() {
+    List<int> counts = getCounts();
+    int maxCount = counts.reduce(max);
+    int mostFrequent = counts.lastIndexOf(maxCount);
+    return (remainTime > 0 && mostFrequent != 0 && maxCount > 1);
+  }
+
   List<int> getCounts() {
     List<int> counts = List.filled(7, 0);
     for (int die in dice) {
@@ -179,15 +197,12 @@ class YahtzeeGame {
     return (ai && !isP1 && round < 14 && dice.remainTime > 0);
   }
 
-  bool setScore(int key) {
+  void setScore(int key) {
     if (isP1 && player1.score[key] == null) {
       player1.setScore(key, dice.score[key]);
-      return true;
     } else if (!isP1 && player2.score[key] == null) {
       player2.setScore(key, dice.score[key]);
-      return true;
     }
-    return false;
   }
 
   bool nextTurn() {
